@@ -6,29 +6,33 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-      # 1. Клонирование репозитория
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # 2. Установка Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
-          node-version: '20'
+          persist-credentials: false
 
-      # 3. Установка зависимостей
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b  # v4.0.3
+        with:
+          node-version: '26'
+
       - name: Install dependencies
         run: make setup
 
-      # 4. Запуск тестов
       - name: Run tests
         run: make test
 
-      # 5. Hexlet action — печатает "Hello from Hexlet!"
       - name: Hello from Hexlet
-        uses: hexlet-components/hello-from-hexlet-action@release
+        uses: hexlet-components/hello-from-hexlet-action@<SHA_ТЕГА_RELEASE>
